@@ -1,15 +1,4 @@
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
 #include "ABR.h"
-
-typedef struct noeud {
-    char* mot;
-    struct noeud *fg, *fd;
-} Noeud, *Arbre;
 
 Noeud* alloue_noeud(char* mot) {
     // alloue la mémoire pour le nouveau noeud
@@ -136,6 +125,45 @@ void libere(Arbre* A) {
     }
 }
 
-void dessine(char* nom, Arbre* A) {}
+void ecrireDebut(FILE* f) {
+    fprintf(f, "digraph arbre {\n\tnode [shape=record, height =.1]\n\tedge [tailclip =false , arrowtail = dot, dir=both];\n");
+}
 
-int cree_arbre(char* nom, Arbre* A) {}
+void ecrireFin(FILE* f) {
+    fprintf(f, "}");
+}
+
+void ecrireArbre(FILE* f, Arbre a) {
+    assert(a != NULL);
+
+    char* val = a->mot;
+    fprintf(f, "\tn%p [label =\"<gauche> | <valeur> %s | <droit>\"];\n", a, val);
+    if (a->fg) {
+        fprintf(f, "\tn%p:gauche:c -> n%p:valeur;\n", a, a->fg);
+        ecrireArbre(f, a->fg);
+    }
+    if (a->fd) {
+        fprintf(f, "\tn%p:droit:c -> n%p:valeur;\n", a, a->fd);
+        ecrireArbre(f, a->fd);
+    }
+}
+
+void dessine(char* nom, Arbre A) {
+    FILE* f = fopen(nom, "w");
+    ecrireDebut(f);
+    ecrireArbre(f, A);
+    ecrireFin(f);
+}
+
+int cree_arbre(char* nom, Arbre* A) {
+    FILE* f = fopen(nom, "r");
+    if (f == NULL) {
+        return 0;
+    }
+    char mot[100];
+    while (fscanf(f, "%s", mot) != EOF) {
+        ajout(A, mot);
+    }
+    fclose(f);
+    return 1;
+}
