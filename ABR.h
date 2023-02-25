@@ -21,6 +21,10 @@ Noeud* ajout(Arbre* A, char* mot);
 
 Noeud* extrait_max(Arbre* A);
 
+Noeud* recherche(Arbre A, char* mot);
+
+Noeud* extrait_Noeudmin(Arbre* A);
+
 Noeud* suppression(Arbre* A, char* mot);
 
 void libere(Arbre* A);

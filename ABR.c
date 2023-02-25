@@ -43,51 +43,83 @@ Noeud* extrait_max(Arbre* A) {
     return extrait_max(&((*A)->fd));
 }
 
-Noeud* suppression(Arbre* A, char* mot) {
-    Noeud* p = *A;
-    Noeud* parent = NULL;
-    while (p != NULL && strcmp(p->mot, mot) != 0) {  // Recherche du noeud à supprimer
-        parent = p;
-        if (strcmp(mot, p->mot) < 0) {
-            p = p->fg;
-        } else {
-            p = p->fd;
-        }
-    }
-    if (p == NULL) return NULL;  // le mot n'est pas présent dans l'arbre
-    Noeud* q = NULL;
-    if (p->fg == NULL) {  // cas où le noeud à supprimer n'a pas de fils gauche
-        q = p->fd;
-    } else if (p->fd == NULL) {  // cas où le noeud à supprimer n'a pas de fils droit
-        q = p->fg;
-    } else {  // cas général où le noeud à supprimer a deux fils
-        // Recherche du plus grand noeud dans le sous-arbre gauche
-        Noeud* r = p->fg;
-        Noeud* rp = p;
-        while (r->fd != NULL) {
-            rp = r;
-            r = r->fd;
-        }
-        // Echange du contenu du noeud à supprimer avec celui du plus grand noeud du sous-arbre gauche
-        q = r;
-        if (rp != p) {
-            rp->fd = q->fg;
-            q->fg = p->fg;
-        }
-        q->fd = p->fd;
-    }
-    if (parent == NULL) {  // cas où le noeud à supprimer est la racine de l'arbre
-        *A = q;
-    } else if (p == parent->fg) {  // cas où le noeud à supprimer est le fils gauche de son parent
-        parent->fg = q;
-    } else {  // cas où le noeud à supprimer est le fils droit de son parent
-        parent->fd = q;
-    }
-    // Libération de la mémoire occupée par le noeud supprimé
-    free(p->mot);
-    free(p);
-    return q;
+// Noeud* suppression(Arbre* A, char* mot) {
+//     Noeud* p = *A;
+//     Noeud* parent = NULL;
+//     while (p != NULL && strcmp(p->mot, mot) != 0) {  // Recherche du noeud à supprimer
+//         parent = p;
+//         if (strcmp(mot, p->mot) < 0) {
+//             p = p->fg;
+//         } else {
+//             p = p->fd;
+//         }
+//     }
+//     if (p == NULL) return NULL;  // le mot n'est pas présent dans l'arbre
+//     Noeud* q = NULL;
+//     if (p->fg == NULL) {  // cas où le noeud à supprimer n'a pas de fils gauche
+//         q = p->fd;
+//     } else if (p->fd == NULL) {  // cas où le noeud à supprimer n'a pas de fils droit
+//         q = p->fg;
+//     } else {  // cas général où le noeud à supprimer a deux fils
+//         // Recherche du plus grand noeud dans le sous-arbre gauche
+//         Noeud* r = p->fg;
+//         Noeud* rp = p;
+//         while (r->fd != NULL) {
+//             rp = r;
+//             r = r->fd;
+//         }
+//         // Echange du contenu du noeud à supprimer avec celui du plus grand noeud du sous-arbre gauche
+//         q = r;
+//         if (rp != p) {
+//             rp->fd = q->fg;
+//             q->fg = p->fg;
+//         }
+//         q->fd = p->fd;
+//     }
+//     if (parent == NULL) {  // cas où le noeud à supprimer est la racine de l'arbre
+//         *A = q;
+//     } else if (p == parent->fg) {  // cas où le noeud à supprimer est le fils gauche de son parent
+//         parent->fg = q;
+//     } else {  // cas où le noeud à supprimer est le fils droit de son parent
+//         parent->fd = q;
+//     }
+//     // Libération de la mémoire occupée par le noeud supprimé
+//     free(p->mot);
+//     free(p);
+//     return q;
+// }
+
+Noeud* recherche(Arbre A, char* mot) {
+    if (A == NULL) return NULL;
+    if (strcmp(mot, A->mot) == 0) return A;
+    if (strcmp(mot, A->mot) < 0) return recherche(A->fg, mot);
+    return recherche(A->fd, mot);
 }
+
+Noeud* extrait_Noeudmin(Arbre* A) {
+    if (*A == NULL)
+        return NULL;
+    else if ((*A)->fg == NULL) {
+        Noeud* supprime_noeud = *A;
+        *A = (*A)->fd;
+        return supprime_noeud;
+    }
+    return extrait_Noeudmin(&((*A)->fg));
+}
+
+Noeud* suppression(Arbre* A, char* mot) {
+    Noeud* fils = recherche(*A, mot);  // O(h-k)
+    if (fils == NULL) return 0;
+    Noeud* new_root = extrait_Noeudmin(&fils);  // O(k), k <= h, h = hauteur
+    new_root->fg = (*A)->fg;
+    new_root->fd = (*A)->fd;
+
+    *A = new_root;
+    fils->fg = NULL;
+    fils->fd = NULL;
+    return fils;
+}
+
 /*
 On initialise deux pointeurs 'p' et 'parent' à la racine de l'arbre.
 On utilise 'p' pour parcourir l'arbre et 'parent' pour suivre le parent du noeud
@@ -160,9 +192,17 @@ int cree_arbre(char* nom, Arbre* A) {
     if (f == NULL) {
         return 0;
     }
-    char mot[100];
-    while (fscanf(f, "%s", mot) != EOF) {
-        ajout(A, mot);
+    char mot[512];
+    // while (fscanf(f, "%s", mot) != EOF) {
+    //     ajout(A, mot);
+    // }
+    // Version fgets
+    while (fgets(mot, 512, f) != NULL) {
+        char* token = strtok(mot, " \n,;:.?!\"()-'");  // On enlève les caractères de ponctuation
+        while (token != NULL) {
+            ajout(A, token);
+            token = strtok(NULL, " \n,;:.?!\"()-'");
+        }
     }
     fclose(f);
     return 1;
