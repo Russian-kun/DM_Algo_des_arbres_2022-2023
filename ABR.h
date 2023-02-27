@@ -1,13 +1,12 @@
 #ifndef ABR_H
 #define ABR_H
 
-#include <stdbool.h>
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <assert.h>
 
+/// @brief Structure de données pour stocker les arguments
 typedef struct noeud {
     char* mot;
     struct noeud *fg, *fd;

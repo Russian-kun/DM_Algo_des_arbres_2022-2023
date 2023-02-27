@@ -1,11 +1,13 @@
 #include "ABR.h"
 #define NB_ARGS 5
 
+/// @brief Structure de données pour stocker les arguments
 typedef struct entry_dict_s {
     char* mot;
     int val;
 } entry_t;
 
+/// @brief Structure de données pour stocker les arguments
 typedef struct dict_s {
     int size;
     struct entry_dict_s entry_t[NB_ARGS];
@@ -22,12 +24,11 @@ int filtre(Arbre* A, Arbre filtref, Arbre* utilises) {
         ajout(utilises, (*A)->mot);
         res = 1;
     }
-    filtre(&((*A)->fg), filtref, utilises);
-    filtre(&((*A)->fd), filtref, utilises);
+    res += filtre(&((*A)->fg), filtref, utilises);
+    res += filtre(&((*A)->fd), filtref, utilises);
     if (res > 0) {
         Noeud* supprime_noeud = *A;
         *A = (*A)->fg;
-        // ajout(A, supprime_noeud->mot);
         free(supprime_noeud);
     }
     return res;
@@ -38,8 +39,6 @@ dict_t get_params(int argc, char* argv[]) {
     dict.size = 0;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            // dict.entry_t[i].mot = "help";
-            // dict.entry_t[i].val = 1;
             printf("Usage: ./filtre <texte> <filtre>\n");
             printf("Filtre le texte en supprimant les mots présents dans le filtre.\n");
             printf("Affiche les mots présents dans le texte mais pas dans le filtre, puis les mots présents simultanément dans les deux fichiers.\n");
