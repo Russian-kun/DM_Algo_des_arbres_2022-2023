@@ -170,10 +170,10 @@ int cree_arbre(char* nom, Arbre* A) {
     // }
     // Version fgets
     while (fgets(mot, 512, f) != NULL) {
-        char* token = strtok(mot, " \n,;:.?!\"()-'");  // On enlève les caractères de ponctuation
+        char* token = strtok(mot, " \n,;:.?!\"()-'`");  // On enlève les caractères de ponctuation
         while (token != NULL) {
             ajout(A, token);
-            token = strtok(NULL, " \n,;:.?!\"()-'");
+            token = strtok(NULL, " \n,;:.?!\"()-'`’");
         }
     }
     fclose(f);
