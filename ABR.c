@@ -43,52 +43,6 @@ Noeud* extrait_max(Arbre* A) {
     return extrait_max(&((*A)->fd));
 }
 
-// Noeud* suppression(Arbre* A, char* mot) {
-//     Noeud* p = *A;
-//     Noeud* parent = NULL;
-//     while (p != NULL && strcmp(p->mot, mot) != 0) {  // Recherche du noeud à supprimer
-//         parent = p;
-//         if (strcmp(mot, p->mot) < 0) {
-//             p = p->fg;
-//         } else {
-//             p = p->fd;
-//         }
-//     }
-//     if (p == NULL) return NULL;  // le mot n'est pas présent dans l'arbre
-//     Noeud* q = NULL;
-//     if (p->fg == NULL) {  // cas où le noeud à supprimer n'a pas de fils gauche
-//         q = p->fd;
-//     } else if (p->fd == NULL) {  // cas où le noeud à supprimer n'a pas de fils droit
-//         q = p->fg;
-//     } else {  // cas général où le noeud à supprimer a deux fils
-//         // Recherche du plus grand noeud dans le sous-arbre gauche
-//         Noeud* r = p->fg;
-//         Noeud* rp = p;
-//         while (r->fd != NULL) {
-//             rp = r;
-//             r = r->fd;
-//         }
-//         // Echange du contenu du noeud à supprimer avec celui du plus grand noeud du sous-arbre gauche
-//         q = r;
-//         if (rp != p) {
-//             rp->fd = q->fg;
-//             q->fg = p->fg;
-//         }
-//         q->fd = p->fd;
-//     }
-//     if (parent == NULL) {  // cas où le noeud à supprimer est la racine de l'arbre
-//         *A = q;
-//     } else if (p == parent->fg) {  // cas où le noeud à supprimer est le fils gauche de son parent
-//         parent->fg = q;
-//     } else {  // cas où le noeud à supprimer est le fils droit de son parent
-//         parent->fd = q;
-//     }
-//     // Libération de la mémoire occupée par le noeud supprimé
-//     free(p->mot);
-//     free(p);
-//     return q;
-// }
-
 Noeud* recherche(Arbre A, char* mot) {
     if (A == NULL) return NULL;
     if (strcmp(mot, A->mot) == 0) return A;
@@ -169,26 +123,44 @@ void ecrireArbre(FILE* f, Arbre a) {
     assert(a != NULL);
 
     char* val = a->mot;
-    fprintf(f, "\tn%p [label =\"<gauche> | <valeur> %s | <droit>\"];\n", a, val);
+    fprintf(f, "\tn%p [label =\"<gauche> | <valeur> %s | <droit>\"];\n", (void*)a, val);
     if (a->fg) {
-        fprintf(f, "\tn%p:gauche:c -> n%p:valeur;\n", a, a->fg);
+        fprintf(f, "\tn%p:gauche:c -> n%p:valeur;\n", (void*)a, (void*)a->fg);
         ecrireArbre(f, a->fg);
     }
     if (a->fd) {
-        fprintf(f, "\tn%p:droit:c -> n%p:valeur;\n", a, a->fd);
+        fprintf(f, "\tn%p:droit:c -> n%p:valeur;\n", (void*)a, (void*)a->fd);
         ecrireArbre(f, a->fd);
     }
 }
 
 void dessine(char* nom, Arbre A) {
-    FILE* f = fopen(nom, "w");
+    char* filename = malloc(sizeof(char) * (strlen(nom) + 5));
+    strcpy(filename, nom);
+    strcat(filename, ".dot");
+    FILE* f = fopen(filename, "w");
+    if (f == NULL) {
+        printf("Erreur lors de l'ouverture du fichier %s\n", filename);
+        return;
+    }
     ecrireDebut(f);
     ecrireArbre(f, A);
     ecrireFin(f);
+    fclose(f);
+
+    char* command = malloc(sizeof(char) * (strlen(filename) + 20));
+    strcpy(command, "dot -Tpdf ");
+    strcat(command, filename);
+    strcat(command, " -o ");
+    strcat(command, nom);
+    strcat(command, ".pdf");
+    system(command);
+    free(filename);
+    free(command);
 }
 
 int cree_arbre(char* nom, Arbre* A) {
-    FILE* f = fopen(nom, "r");
+    FILE* f = fopen(nom, "rw");
     if (f == NULL) {
         return 0;
     }
