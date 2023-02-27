@@ -1,7 +1,6 @@
 FILES := *.o *.gch *.dot *.pdf filtre
 COMP := gcc
-CFLAGS := -Wall -Wfatal-errors -pedantic -Wextra -Werror
-
+CFLAGS := -Wall -Wfatal-errors -pedantic -Wextra -Werror -g
 all: ABR.o filtre
 
 filtre: filtrage.c ABR.o

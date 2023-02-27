@@ -24,12 +24,10 @@ int filtre(Arbre* A, Arbre filtref, Arbre* utilises) {
         ajout(utilises, (*A)->mot);
         res = 1;
     }
-    res += filtre(&((*A)->fg), filtref, utilises);
-    res += filtre(&((*A)->fd), filtref, utilises);
+    filtre(&((*A)->fg), filtref, utilises);
+    filtre(&((*A)->fd), filtref, utilises);
     if (res > 0) {
-        Noeud* supprime_noeud = *A;
-        *A = (*A)->fg;
-        free(supprime_noeud);
+        suppression(A, (*A)->mot);
     }
     return res;
 }

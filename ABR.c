@@ -120,8 +120,8 @@ void ecrireFin(FILE* f) {
 }
 
 void ecrireArbre(FILE* f, Arbre a) {
-    assert(a != NULL);
-
+    // assert(a != NULL);
+    if (a == NULL) return;
     char* val = a->mot;
     fprintf(f, "\tn%p [label =\"<gauche> | <valeur> %s | <droit>\"];\n", (void*)a, val);
     if (a->fg) {
