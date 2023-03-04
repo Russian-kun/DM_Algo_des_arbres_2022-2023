@@ -13,25 +13,25 @@ typedef struct dict_s {
     struct entry_dict_s entry_t[NB_ARGS];
 } dict_t;
 
-// supprime de l’arbre *A tous les nœuds contenant un mot présent dans l’arbre *filtre et
-// insère ce mot dans l’ABR *utilises
+/*supprime de l’arbre *A tous les nœuds contenant un mot présent dans l’arbre *filtre et insère ce mot dans l’ABR *utilises*/
 int filtre(Arbre* A, Arbre filtref, Arbre* utilises) {
     if (*A == NULL) {
         return 0;
     }
     int res = 0;
+    filtre(&((*A)->fg), filtref, utilises);
+    filtre(&((*A)->fd), filtref, utilises);
     if (recherche(filtref, (*A)->mot) != NULL) {
         ajout(utilises, (*A)->mot);
         res = 1;
     }
-    filtre(&((*A)->fg), filtref, utilises);
-    filtre(&((*A)->fd), filtref, utilises);
     if (res > 0) {
         suppression(A, (*A)->mot);
     }
     return res;
 }
 
+/*Recupere les parametres de la ligne de commande*/
 dict_t get_params(int argc, char* argv[]) {
     dict_t dict;
     dict.size = 0;
@@ -57,6 +57,7 @@ dict_t get_params(int argc, char* argv[]) {
     return dict;
 }
 
+/*recupere les fichiers texte et filtre. Retourne NULL si il n'y a pas 2 fichiers*/
 char** get_files(dict_t dict) {
     char** files = malloc(sizeof(char*) * 2);
     int j = 0;
@@ -70,6 +71,7 @@ char** get_files(dict_t dict) {
     return j == 2 ? files : NULL;
 }
 
+/*verifie si l'option visuel est presente dans les arguments*/
 int is_visuel(dict_t dict) {
     for (int i = 0; i < dict.size; i++) {
         if (strcmp(dict.entry_t[i].mot, "visuel") == 0) {

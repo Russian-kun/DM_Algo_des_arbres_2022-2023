@@ -1,0 +1,7 @@
+Commandes de setup pour une mise en place rapide
+
+Compilation:
+    $ make all
+
+Documentation:
+    $ doxygen Doxyfile
