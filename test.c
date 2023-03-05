@@ -1,5 +1,5 @@
 #include "ABR.h"
-#define NB_ARGS 6
+#define NB_ARGS 5
 
 /// @brief Structure de données pour stocker les arguments
 typedef struct entry_dict_s {
@@ -42,13 +42,9 @@ dict_t get_params(int argc, char* argv[]) {
             printf("\nOptions: \n");
             printf("  -h, --help  \tAffiche l'aide.\n");
             printf("  -v, --visuel\tCree des fichiers pdf pour visualiser les arbres.\n");
-            printf("  -s, --silent\tNe pas afficher les arbres.\n");
             exit(0);
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--visuel") == 0) {
             dict.entry_t[i].mot = "visuel";
-            dict.entry_t[i].val = 1;
-        } else if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--silent") == 0) {
-            dict.entry_t[i].mot = "silent";
             dict.entry_t[i].val = 1;
         } else {
             dict.entry_t[i].mot = argv[i];
@@ -83,44 +79,19 @@ int is_visuel(dict_t dict) {
     return 0;
 }
 
-/*verifie si l'option silent est presente dans les arguments*/
-int is_silent(dict_t dict) {
-    for (int i = 0; i < dict.size; i++) {
-        if (strcmp(dict.entry_t[i].mot, "silent") == 0) {
-            return dict.entry_t[i].val;
-        }
-    }
-    return 0;
-}
-
-int main(int argv, char* argc[]) {
-    if (argv < 3) {
-        printf("Usage: ./filtre <texte> <filtre>\n");
-        printf("  -h, --help  \tAffiche l'aide.\n");
-        return 1;
-    }
-    dict_t dict = get_params(argv, argc);
-    char** files = get_files(dict);
-    char* texte = files[0];
-    char* filtref = files[1];
+int main() {
+    char* texte = "./test/texte1.txt";
+    char* filtref = "./test/filtre1.txt";
 
     Arbre texte_filtre = NULL, texte_original = NULL, filtre_arbre = NULL, utilises = NULL;
     cree_arbre(texte, &texte_filtre);
     cree_arbre(texte, &texte_original);
     cree_arbre(filtref, &filtre_arbre);
-    free(files);
+    // free(files);
 
     filtre(&texte_filtre, filtre_arbre, &utilises);
-    // affiche sur le terminal les mots présents dans le fichier
-    // texte mais qui ne sont pas dans filtre, puis les mots
-    // présents simultanément dans les deux fichiers.
-    if (!is_silent(dict)) {
-        printf("Mots présents dans le texte mais pas dans le filtre: \n");
-        parcours_infixe(texte_filtre);
-        printf("\nMots présents dans le texte et dans le filtre: \n");
-        parcours_infixe(utilises);
-    }
-    if (is_visuel(dict)) {
+    libere(&utilises);
+    if (1) {
         dessine("texte", texte_original);
         dessine("filtre", filtre_arbre);
         dessine("filtrage", texte_filtre);
@@ -128,9 +99,9 @@ int main(int argv, char* argc[]) {
 
         system("rm *.dot");
     }
-    libere(&texte_filtre);
     libere(&texte_original);
     libere(&filtre_arbre);
+    libere(&texte_filtre);
     libere(&utilises);
     return 0;
 }

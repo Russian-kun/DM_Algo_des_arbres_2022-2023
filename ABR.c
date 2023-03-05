@@ -25,11 +25,29 @@ void parcours_infixe(Arbre A) {
 Noeud* ajout(Arbre* A, char* mot) {
     if (*A == NULL) {
         *A = alloue_noeud(mot);
-    } else if (strcmp(mot, (*A)->mot) < 0)
+        return *A;
+    }
+    if (strcmp(mot, (*A)->mot) < 0) {
         return ajout(&((*A)->fg), mot);
-    else if (strcmp(mot, (*A)->mot) > 0)
+    }
+    if (strcmp(mot, (*A)->mot) > 0) {
         return ajout(&((*A)->fd), mot);
-    return NULL;
+    }
+    return *A;
+}
+
+int insere(Arbre* A, Noeud* n) {
+    if (*A == NULL) {
+        *A = n;
+        return 1;
+    }
+    if (strcmp(n->mot, (*A)->mot) < 0) {
+        return insere(&((*A)->fg), n);
+    }
+    if (strcmp(n->mot, (*A)->mot) > 0) {
+        return insere(&((*A)->fd), n);
+    }
+    return 0;
 }
 
 Noeud* extrait_max(Arbre* A) {
@@ -55,7 +73,7 @@ Noeud* extrait_Noeudmin(Arbre* A) {
         return NULL;
     else if ((*A)->fg == NULL) {
         Noeud* supprime_noeud = *A;
-        *A = (*A)->fd;
+        *A = NULL;
         return supprime_noeud;
     }
     return extrait_Noeudmin(&((*A)->fg));
@@ -148,7 +166,7 @@ void dessine(char* nom, Arbre A) {
     ecrireFin(f);
     fclose(f);
 
-    char* command = malloc(sizeof(char) * (strlen(filename) + 20));
+    char* command = malloc(sizeof(char) * (strlen(filename) + 20 + strlen(nom)));
     strcpy(command, "dot -Tpdf ");
     strcat(command, filename);
     strcat(command, " -o ");

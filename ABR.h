@@ -37,6 +37,15 @@ void parcours_infixe(Arbre A);
 Noeud* ajout(Arbre* A, char* mot);
 
 /**
+ * @brief Insère un noeud dans l'arbre
+ *
+ * @param A
+ * @param n
+ * @return int
+ */
+int insere(Arbre* A, Noeud* n);
+
+/**
  * @brief Retourne le noeud avec la valeur maximale de l'arbre.
  * Retourne NULL si l'arbre est vide
  *
